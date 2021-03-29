@@ -45,34 +45,75 @@ public class PizzaRunner implements CommandLineRunner {
     }
 
     void placeOrder(List<PizzasWithAmount> pizzasWithAmountList, List<IngredientsWithAmount> ingredientsWithAmountList) throws IOException {
-        System.out.println(ClientConstants.INGREDIENTS_LIST);
-        for (Ingredients n : Ingredients.values()) {
-            System.out.print(n + ",");
-        }
+        String inputTopping = getInputInputTopping();
+        String inputToppingQuantities = getInputToppingQuantities();
 
-        System.out.println("\n" + ClientConstants.ENTER_INGREDIENTS_FROM_ABOVE);
-        Scanner inputScanner = new Scanner(System.in);
-        String inputIngredients = inputScanner.nextLine();
-
-        System.out.println("\n" + ClientConstants.HOW_MANY_THIS_TOPPING);
-        String howManyThisTopping = inputScanner.nextLine();
-
-        IngredientsWithAmount ingredientsWithAmount = new IngredientsWithAmount(inputIngredients, howManyThisTopping);
+        IngredientsWithAmount ingredientsWithAmount = new IngredientsWithAmount(inputTopping, inputToppingQuantities);
         ingredientsWithAmountList.add(ingredientsWithAmount);
 
-
+        Scanner inputScanner = new Scanner(System.in);
         System.out.println(ClientConstants.MORE_TOPPING);
         String answer = inputScanner.nextLine();
         if (answer.equals("y"))
             placeOrder(pizzasWithAmountList, ingredientsWithAmountList);
         else {
-            System.out.println("\n" + ClientConstants.HOW_MANY_THIS_PIZZA);
-            String howManyThisPizzas = inputScanner.nextLine();
+            String howManyThisPizzas = inputPizzaQuantities();
             Pizza pizza = new Pizza(ingredientsWithAmountList);
             PizzasWithAmount pizzasWithAmount = new PizzasWithAmount(pizza, howManyThisPizzas);
             pizzasWithAmountList.add(pizzasWithAmount);
             moreOrderOrNot(pizzasWithAmountList);
         }
+    }
+
+    String getInputInputTopping() {
+        System.out.println(ClientConstants.INGREDIENTS_LIST);
+        for (Ingredients ingredient : Ingredients.values()) {
+            System.out.print(ingredient + ",");
+        }
+        System.out.println("\n" + ClientConstants.ENTER_INGREDIENTS_FROM_ABOVE);
+        Scanner inputScanner = new Scanner(System.in);
+        String inputIngredients = inputScanner.nextLine();
+        return validIInputTopping(inputIngredients);
+    }
+
+    String validIInputTopping(String inputTopping) {
+        boolean isValid = false;
+        for (Ingredients ingredient : Ingredients.values()) {
+            if (inputTopping.equals(ingredient.toString())) {
+                isValid = true;
+                break;
+            }
+        }
+        if (!isValid) {
+            System.out.println("\n"+"Your input "+inputTopping+" is not matching our ingredients. Please input again!"+"\n");
+            inputTopping = getInputInputTopping();
+        }
+        return inputTopping;
+    }
+
+
+    String inputPizzaQuantities() {
+        System.out.println("\n" + ClientConstants.HOW_MANY_THIS_PIZZA);
+        Scanner inputScanner = new Scanner(System.in);
+        String howManyThisPizzas = inputScanner.nextLine();
+        if (!howManyThisPizzas.matches("[1-9]"))
+            howManyThisPizzas = inputPizzaQuantities();
+        return howManyThisPizzas;
+    }
+
+
+    String getInputToppingQuantities() {
+        System.out.println("\n" + ClientConstants.HOW_MANY_THIS_TOPPING);
+        Scanner inputScanner = new Scanner(System.in);
+        String howManyThisTopping = inputScanner.nextLine();
+        //validInputQuantities(howManyThisTopping);
+        return validInputQuantities(howManyThisTopping);
+    }
+
+    String validInputQuantities(String inputIngredients) {
+        if (!inputIngredients.matches("[1-9]"))
+            inputIngredients = getInputToppingQuantities();
+        return inputIngredients;
     }
 
     void moreOrderOrNot(List<PizzasWithAmount> pizzasWithAmountList) throws IOException {
